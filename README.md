@@ -6,7 +6,7 @@
 Open source software for image correlation, distance and analysis.
 Strongly related to : [Carl-Hauser](https://github.com/CIRCL/carl-hauser) 
 
-Docker images are available at: [Docker hub](https://hub.docker.com/r/dodancs/carl-hauser-docker)
+Docker images are available at: [Docker hub](https://hub.docker.com/r/dodancs/carl-hauser)
 
 ## Problem statement (@CIRCL)
 
