@@ -36,7 +36,7 @@ class Simple_API:
     @staticmethod
     def get_custom_api(api_class):
         # Generate the API access point link to the hardcoded server
-        cert = (get_homedir() / "carlhauser_client" / "cert.pem").resolve()
+        cert = pathlib.Path('/app/storage/cert.pem').resolve()
 
         # See : https://stackoverflow.com/questions/10667960/python-requests-throwing-sslerror
         # To create : openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365

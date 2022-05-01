@@ -75,7 +75,7 @@ class ClientInstanceExample:
     @staticmethod
     def example():
         # Generate the API access point link to the hardcoded server
-        cert = (get_homedir() / "carlhauser_client" / "cert.pem").resolve()
+        cert = pathlib.Path('/app/storage/cert.pem').resolve()
         api = Simple_API(url='https://localhost/', certificate_path=cert)
 
         # Ping server, and perform uploads
@@ -101,7 +101,7 @@ class ClientInstanceExample:
     @staticmethod
     def example_automated():
         # Generate the API access point link to the hardcoded server
-        cert = (get_homedir() / "carlhauser_client" / "cert.pem").resolve()
+        cert = pathlib.Path('/app/storage/cert.pem').resolve()
         api = Extended_API(url='https://localhost/',
                            certificate_path=cert)
 

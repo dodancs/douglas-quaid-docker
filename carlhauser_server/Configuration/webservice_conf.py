@@ -6,8 +6,8 @@ from common.environment_variable import JSON_parsable_Dict
 class Default_webservice_conf(JSON_parsable_Dict):
     def __init__(self):
         # Please note that CERT and KEY files must be in carl-hauser/carlhauser_server (where the flask server is)
-        self.CERT_FILE: pathlib.Path = '/app/storage/cert.pem'
-        self.KEY_FILE: pathlib.Path = '/app/storage/cert.key'
+        self.CERT_FILE: pathlib.Path = pathlib.Path('/app/storage/cert.pem')
+        self.KEY_FILE: pathlib.Path = pathlib.Path('/app/storage/cert.key')
 
         self.ip = '127.0.0.1'
         self.port = 443
