@@ -1,7 +1,7 @@
 # Douglas-Quaid Project
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e27a772481ed4033861670b9767249b6)](https://app.codacy.com/app/zettacircl/douglas-quaid?utm_source=github.com&utm_medium=referral&utm_content=Vincent-CIRCL/douglas-quaid&utm_campaign=Badge_Grade_Dashboard)
-<img src="https://github.com/CIRCL/douglas-quaid/blob/master/docs/images/DouglasQuaid_cropped.svg"/>
+<img src="./htmlcov/coverage.svg"/>
 
 Open source software for image correlation, distance and analysis.
 Strongly related to : [Carl-Hauser](https://github.com/CIRCL/carl-hauser) 
@@ -10,7 +10,7 @@ Docker images are available at: [Docker hub](https://hub.docker.com/r/dodancs/do
 
 ## Problem statement (@CIRCL)
 
-<img align="right" width="300" src="docs/images/DouglasQuaid_cropped.svg">
+<img align="right" width="300" src="https://github.com/CIRCL/douglas-quaid/blob/master/docs/images/DouglasQuaid_cropped.svg">
 
 A lot of information collected or processed by CIRCL are related to images (at large from photos, screenshots of website or screenshots of sandboxes). The datasets become larger and analysts need to classify, search and correlate throught all the images. 
 
