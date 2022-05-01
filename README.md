@@ -1,12 +1,12 @@
 # Douglas-Quaid Project
 
 [![Codacy Badge](https://api.codacy.com/project/badge/Grade/e27a772481ed4033861670b9767249b6)](https://app.codacy.com/app/zettacircl/douglas-quaid?utm_source=github.com&utm_medium=referral&utm_content=Vincent-CIRCL/douglas-quaid&utm_campaign=Badge_Grade_Dashboard)
-<img src="./htmlcov/coverage.svg"/>
+<img src="https://github.com/CIRCL/douglas-quaid/blob/master/docs/images/DouglasQuaid_cropped.svg"/>
 
 Open source software for image correlation, distance and analysis.
 Strongly related to : [Carl-Hauser](https://github.com/CIRCL/carl-hauser) 
 
-Docker images are available at: [Docker hub](https://hub.docker.com/r/dodancs/carl-hauser)
+Docker images are available at: [Docker hub](https://hub.docker.com/r/dodancs/douglas-quaid)
 
 ## Problem statement (@CIRCL)
 
@@ -38,7 +38,7 @@ Later :
 
 ## Getting Started
 
--   Documentation of core components : [MarkDown - NOT UPDATED](./SOTA/Core_doc.md) | [PDF version](./SOTA/Core_doc.pdf)
+-   Documentation of core components : [MarkDown - NOT UPDATED](https://github.com/CIRCL/carl-hauser/blob/master/SOTA/SOTA.md) | [PDF version](https://github.com/CIRCL/carl-hauser/blob/master/SOTA/SOTA.pdf)
 
 ### Questions
 
