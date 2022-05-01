@@ -1,13 +1,13 @@
 import pathlib
 
-from common.environment_variable import get_homedir, JSON_parsable_Dict
+from common.environment_variable import JSON_parsable_Dict
 
 
 class Default_webservice_conf(JSON_parsable_Dict):
     def __init__(self):
         # Please note that CERT and KEY files must be in carl-hauser/carlhauser_server (where the flask server is)
-        self.CERT_FILE: pathlib.Path = get_homedir() / 'carlhauser_server' / 'cert.pem'  # './cert.pem'
-        self.KEY_FILE: pathlib.Path = get_homedir() / 'carlhauser_server' / 'key.pem'  # './key.pem'
+        self.CERT_FILE: pathlib.Path = '/app/storage/cert.pem'
+        self.KEY_FILE: pathlib.Path = '/app/storage/cert.key'
 
         self.ip = '127.0.0.1'
         self.port = 5000

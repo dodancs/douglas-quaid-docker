@@ -76,6 +76,8 @@ COPY ./start.sh /app/start.sh
 ENV CARLHAUSER_HOME /app/
 ENV PYTHONPATH /app/
 
+VOLUME [ "/app/storage", "/app/carlhauser_server/Data/database_data" ]
+
 EXPOSE 5000
 
 CMD [ "./start.sh" ]
