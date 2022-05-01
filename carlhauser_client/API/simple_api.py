@@ -40,7 +40,8 @@ class Simple_API:
 
         # See : https://stackoverflow.com/questions/10667960/python-requests-throwing-sslerror
         # To create : openssl req -x509 -newkey rsa:4096 -nodes -out cert.pem -keyout key.pem -days 365
-        api = api_class(url='https://localhost:5000/', certificate_path=cert)  # TODO : Should be =cert
+        # TODO : Should be =cert
+        api = api_class(url='https://localhost/', certificate_path=cert)
         logging.captureWarnings(True)  # TODO : Remove
         return api
 
@@ -58,8 +59,10 @@ class Simple_API:
 
     def utility_image_to_HTTP_payload(self, file_path: pathlib.Path, img) -> Dict:
         # Construct the files attribute of the put request
-        files = {'image': (file_path.name, img, 'multipart/form-data', {'Expires': '0'})}
-        self.logger.debug(f"Ready to send picture in client : {type(img)} {img}")
+        files = {'image': (file_path.name, img,
+                           'multipart/form-data', {'Expires': '0'})}
+        self.logger.debug(
+            f"Ready to send picture in client : {type(img)} {img}")
         return files
 
     @staticmethod
@@ -98,7 +101,8 @@ class Simple_API:
         :return: the response from the server
         """
         r = requests.post(url=self.server_url, verify=self.cert)
-        self.logger.info(f"POST request => {r.status_code} {r.reason} {r.text}")
+        self.logger.info(
+            f"POST request => {r.status_code} {r.reason} {r.text}")
         return r
 
     # ================= ADD PICTURES =================
@@ -125,12 +129,14 @@ class Simple_API:
             with requests.Session() as s:
                 # Execute the put request
                 r = s.put(url=target_url, files=files, verify=self.cert)
-                self.logger.info(f"PUT picture => {r.status_code} {r.reason} {r.text}")
+                self.logger.info(
+                    f"PUT picture => {r.status_code} {r.reason} {r.text}")
 
                 # Check the JSON Response Content documentation below
                 data = self.utility_extract_and_log_response(r)
 
-                return data.get("Status", False) == "Success", data.get("id", None)  # picture_id
+                # picture_id
+                return data.get("Status", False) == "Success", data.get("id", None)
 
     # ================= ADD PICTURES - WAITING =================
 
@@ -144,7 +150,8 @@ class Simple_API:
 
         # Starting count-down
         start_time = time.time()
-        self.logger.info(f"Checking if adding had been performed. Start polling ...")
+        self.logger.info(
+            f"Checking if adding had been performed. Start polling ...")
 
         # While the answer is not ready or we haven't timed-out
         time_out = False
@@ -154,10 +161,12 @@ class Simple_API:
             time.sleep(2)
 
             # Compute if we are already in time out
-            time_out = (abs(time.time() - start_time) > max_time and max_time != -1)
+            time_out = (abs(time.time() - start_time)
+                        > max_time and max_time != -1)
 
             if time_out:
-                self.logger.info(f"Adding has still not been performed. Time out ! ...")
+                self.logger.info(
+                    f"Adding has still not been performed. Time out ! ...")
                 return False
 
         # Ready !
@@ -174,7 +183,8 @@ class Simple_API:
 
         with requests.Session() as s:
             r = s.get(url=target_url, verify=self.cert)
-            self.logger.info(f"GET request is_ready => {r.status_code} {r.reason} {r.text}")
+            self.logger.info(
+                f"GET request is_ready => {r.status_code} {r.reason} {r.text}")
 
             # Check the JSON Response Content documentation below
             data = self.utility_extract_and_log_response(r)
@@ -203,12 +213,14 @@ class Simple_API:
 
             with requests.Session() as s:
                 r = s.post(url=target_url, files=files, verify=self.cert)
-                self.logger.info(f"POST picture request => {r.status_code} {r.reason} {r.text}")
+                self.logger.info(
+                    f"POST picture request => {r.status_code} {r.reason} {r.text}")
 
                 # Check the JSON Response Content documentation below
                 data = self.utility_extract_and_log_response(r)
 
-                return data.get("Status", False) == "Success", data.get("id", None)  # request_id
+                # request_id
+                return data.get("Status", False) == "Success", data.get("id", None)
 
     def get_results(self, request_id: str) -> (bool, Dict):
         """
@@ -225,7 +237,8 @@ class Simple_API:
 
         with requests.Session() as s:
             r = s.get(url=target_url, params=payload, verify=self.cert)
-            self.logger.info(f"GET request results => {r.status_code} {r.reason} {r.text}")
+            self.logger.info(
+                f"GET request results => {r.status_code} {r.reason} {r.text}")
             self.logger.info(r.content)
 
             data = r.json()  # Check the JSON Response Content documentation below
@@ -246,12 +259,14 @@ class Simple_API:
 
         # If the request id is not set, alert and continue
         if type(request_id) is None or request_id is None:
-            self.logger.error("None request id tried to be polled. Structural problem detected.")
+            self.logger.error(
+                "None request id tried to be polled. Structural problem detected.")
             return True
 
         # Starting count-down
         start_time = time.time()
-        self.logger.info(f"Checking if {request_id} is ready. Start polling ...")
+        self.logger.info(
+            f"Checking if {request_id} is ready. Start polling ...")
 
         # While the answer is not ready or we haven't timed-out
         time_out = False
@@ -261,10 +276,12 @@ class Simple_API:
             time.sleep(2)
 
             # Compute if we are already in time out
-            time_out = (abs(time.time() - start_time) > max_time and max_time != -1)
+            time_out = (abs(time.time() - start_time)
+                        > max_time and max_time != -1)
 
             if time_out:
-                self.logger.info(f"{request_id} has still no answer. Time out ! ...")
+                self.logger.info(
+                    f"{request_id} has still no answer. Time out ! ...")
                 return False
 
         # Ready !
@@ -285,7 +302,8 @@ class Simple_API:
 
         with requests.Session() as s:
             r = s.get(url=target_url, params=payload, verify=self.cert)
-            self.logger.info(f"GET request is_ready => {r.status_code} {r.reason} {r.text}")
+            self.logger.info(
+                f"GET request is_ready => {r.status_code} {r.reason} {r.text}")
 
             # Check the JSON Response Content documentation below
             data = self.utility_extract_and_log_response(r)
@@ -304,7 +322,8 @@ class Simple_API:
 
         with requests.Session() as s:
             r = s.get(url=target_url, verify=self.cert)
-            self.logger.info(f"GET request results => {r.status_code} {r.reason} {r.text}")
+            self.logger.info(
+                f"GET request results => {r.status_code} {r.reason} {r.text}")
 
             # Check the JSON Response Content documentation below
             data = self.utility_extract_and_log_response(r)
@@ -321,7 +340,8 @@ class Simple_API:
 
         with requests.Session() as s:
             r = s.get(url=target_url, verify=self.cert)
-            self.logger.info(f"GET request results => {r.status_code} {r.reason} {r.text}")
+            self.logger.info(
+                f"GET request results => {r.status_code} {r.reason} {r.text}")
 
             # Check the JSON Response Content documentation below
             data = self.utility_extract_and_log_response(r)

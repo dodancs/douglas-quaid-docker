@@ -10,7 +10,7 @@ class Default_webservice_conf(JSON_parsable_Dict):
         self.KEY_FILE: pathlib.Path = '/app/storage/cert.key'
 
         self.ip = '127.0.0.1'
-        self.port = 5000
+        self.port = 443
 
 
 def parse_from_dict(conf):

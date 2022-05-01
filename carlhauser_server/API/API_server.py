@@ -78,9 +78,11 @@ class FlaskAppWrapper(object):
         self.app = flask.Flask(name)
 
         # An accessor to push stuff in queues, mainly
-        self.database_worker: database_worker.Database_Worker = database_worker.Database_Worker(tmp_db_conf=tmp_db_conf)
+        self.database_worker: database_worker.Database_Worker = database_worker.Database_Worker(
+            tmp_db_conf=tmp_db_conf)
         self.db_utils: db_utils.DBUtilities = None
-        self.db_startstop = database_start_stop.Database_StartStop(db_conf=tmp_db_conf)
+        self.db_startstop = database_start_stop.Database_StartStop(
+            db_conf=tmp_db_conf)
 
     def run(self):
         """
@@ -89,17 +91,21 @@ class FlaskAppWrapper(object):
         :return: no return (continuously executing. Return error code if stopped and so)
         """
         if self.ws_conf.CERT_FILE is None or self.ws_conf.KEY_FILE is None:
-            self.logger.error(f"Provided CERT OR KEY file not found :  {self.ws_conf.CERT_FILE} and {self.ws_conf.KEY_FILE}")
-            ## Replaced with below code to run it using waitress
+            self.logger.error(
+                f"Provided CERT OR KEY file not found :  {self.ws_conf.CERT_FILE} and {self.ws_conf.KEY_FILE}")
+            # Replaced with below code to run it using waitress
             # serve(self.app, host=self.ws_conf.ip, port=self.ws_conf.port, ssl_context='adhoc')
             self.app.run(ssl_context='adhoc')
         else:
-            self.logger.info(f"Provided CERT OR KEY file used : {self.ws_conf.CERT_FILE} and {self.ws_conf.KEY_FILE}")
-            ## Replaced with below code to run it using waitress
-            self.app.run(ssl_context=(str(self.ws_conf.CERT_FILE), str(self.ws_conf.KEY_FILE)))  # ssl_context='adhoc')
+            self.logger.info(
+                f"Provided CERT OR KEY file used : {self.ws_conf.CERT_FILE} and {self.ws_conf.KEY_FILE}")
+            # Replaced with below code to run it using waitress
+            self.app.run(ssl_context=(str(self.ws_conf.CERT_FILE), str(
+                self.ws_conf.KEY_FILE)))  # ssl_context='adhoc')
             # serve(self.app, host=self.ws_conf.ip, port=self.ws_conf.port, ssl_context=(str(self.ws_conf.CERT_FILE), str(self.ws_conf.KEY_FILE)))
 
-            self.logger.critical(f"Server running on {self.ws_conf.ip}:{self.ws_conf.port} ... ")
+            self.logger.critical(
+                f"Server running on {self.ws_conf.ip}:{self.ws_conf.port} ... ")
 
     def add_all_endpoints(self):
         """
@@ -109,25 +115,34 @@ class FlaskAppWrapper(object):
 
         # Add root endpoint
         tmp_ep_name = "/"
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.ping)
+        self.add_endpoint(endpoint=tmp_ep_name,
+                          endpoint_name=tmp_ep_name, handler=self.ping)
 
         # Add action endpoints
         tmp_ep_name = "/" + EndPoints.ADD_PICTURE
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.add_picture)
+        self.add_endpoint(endpoint=tmp_ep_name,
+                          endpoint_name=tmp_ep_name, handler=self.add_picture)
         tmp_ep_name = "/" + EndPoints.REQUEST_PICTURE
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.request_similar_picture)
+        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name,
+                          handler=self.request_similar_picture)
         tmp_ep_name = "/" + EndPoints.WAIT_FOR_REQUEST
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.is_request_ready)
+        self.add_endpoint(
+            endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.is_request_ready)
         tmp_ep_name = "/" + EndPoints.WAIT_FOR_ADD
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.are_pipelines_empty)
+        self.add_endpoint(
+            endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.are_pipelines_empty)
         tmp_ep_name = "/" + EndPoints.EMPTY_PIPELINE
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.are_pipelines_empty)
+        self.add_endpoint(
+            endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.are_pipelines_empty)
         tmp_ep_name = "/" + EndPoints.GET_REQUEST_RESULT
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.get_results)
+        self.add_endpoint(endpoint=tmp_ep_name,
+                          endpoint_name=tmp_ep_name, handler=self.get_results)
         tmp_ep_name = "/" + EndPoints.REQUEST_DB
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.export_db_as_graphe)
+        self.add_endpoint(
+            endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.export_db_as_graphe)
         tmp_ep_name = "/" + EndPoints.FLUSH_DB
-        self.add_endpoint(endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.flush_databases)
+        self.add_endpoint(
+            endpoint=tmp_ep_name, endpoint_name=tmp_ep_name, handler=self.flush_databases)
 
     def add_endpoint(self, endpoint=None, endpoint_name=None, handler=None):
         """
@@ -137,7 +152,8 @@ class FlaskAppWrapper(object):
         :param handler: function to execute on call on the URL
         :return: Nothing
         """
-        self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(handler), methods=['GET', 'POST', 'PUT'])
+        self.app.add_url_rule(endpoint, endpoint_name, EndpointAction(
+            handler), methods=['GET', 'POST', 'PUT'])
 
     # ==================== ------ API Calls ------- ====================
 
@@ -156,7 +172,7 @@ class FlaskAppWrapper(object):
         # Note that "flask.request" is a global object, but is linked to the local context by flask. No worries :)
 
         return result_json
-        # Test it with curl 127.0.0.1:5000
+        # Test it with curl 127.0.0.1:443
 
     # ================= ADD PICTURES =================
     def add_picture(self) -> Dict:
@@ -184,10 +200,11 @@ class FlaskAppWrapper(object):
                 result_json["Status"] = "Failure"
                 result_json["Error"] = "Error during Hash computation or database adding"
         else:
-            result_json = self.add_bad_method_info(result_json, good_method_instead="PUT")
+            result_json = self.add_bad_method_info(
+                result_json, good_method_instead="PUT")
 
         return result_json
-        # Test it with curl 127.0.0.1:5000/add_pict
+        # Test it with curl 127.0.0.1:443/add_pict
 
     # ================= ADD PICTURES - WAITING =================
     def are_pipelines_empty(self) -> Dict:
@@ -209,14 +226,16 @@ class FlaskAppWrapper(object):
                 result_json["Status"] = "Success"
 
             except Exception as e:
-                self.logger.error(f"Normal error during GET handling ({EndPoints.EMPTY_PIPELINE} request) {e}")
+                self.logger.error(
+                    f"Normal error during GET handling ({EndPoints.EMPTY_PIPELINE} request) {e}")
                 result_json["Status"] = "Failure"
                 result_json["Error"] = "Error during queues request"
         else:
-            result_json = self.add_bad_method_info(result_json, good_method_instead="GET")
+            result_json = self.add_bad_method_info(
+                result_json, good_method_instead="GET")
 
         return result_json
-        # Test it with curl 127.0.0.1:5000/are_pipelines_empty
+        # Test it with curl 127.0.0.1:443/are_pipelines_empty
 
     # ================= REQUEST PICTURES =================
 
@@ -246,10 +265,11 @@ class FlaskAppWrapper(object):
                 result_json["Status"] = "Failure"
                 result_json["Error"] = "Error during Hash computation or database request"
         else:
-            result_json = self.add_bad_method_info(result_json, good_method_instead="POST")
+            result_json = self.add_bad_method_info(
+                result_json, good_method_instead="POST")
 
         return result_json
-        # Test it with curl 127.0.0.1:5000/request_similar_picture
+        # Test it with curl 127.0.0.1:443/request_similar_picture
 
     def get_results(self) -> Dict:
         """
@@ -266,10 +286,12 @@ class FlaskAppWrapper(object):
             try:
                 # Received : werkzeug.datastructures.FileStorage. Should use ".read()" to get picture's value
                 tmp_id = flask.request.args.get('request_id')
-                self.logger.debug(f"Request ID to be answered in server : {type(tmp_id)} ==> {tmp_id} ")  # {f.read()}
+                self.logger.debug(
+                    f"Request ID to be answered in server : {type(tmp_id)} ==> {tmp_id} ")  # {f.read()}
 
                 # Fetch results
-                result_dict = self.database_worker.get_request_result(self.database_worker.cache_db_no_decode, tmp_id)
+                result_dict = self.database_worker.get_request_result(
+                    self.database_worker.cache_db_no_decode, tmp_id)
 
                 result_json["Status"] = "Success"
                 result_json["request_id"] = tmp_id
@@ -279,10 +301,11 @@ class FlaskAppWrapper(object):
                 result_json["Status"] = "Failure"
                 result_json["Error"] = "Error during Hash computation or database request"
         else:
-            result_json = self.add_bad_method_info(result_json, good_method_instead="GET")
+            result_json = self.add_bad_method_info(
+                result_json, good_method_instead="GET")
 
         return result_json
-        # Test it with curl 127.0.0.1:5000/get_results
+        # Test it with curl 127.0.0.1:443/get_results
 
     # ================= REQUEST PICTURES - WAITING =================
 
@@ -301,25 +324,29 @@ class FlaskAppWrapper(object):
             try:
                 # Received : werkzeug.datastructures.FileStorage. Should use ".read()" to get picture's value
                 tmp_id = flask.request.args.get('request_id')
-                self.logger.debug(f"Request ID to be checked if ready in server : {type(tmp_id)} ==> {tmp_id} ")  # {f.read()}
+                self.logger.debug(
+                    f"Request ID to be checked if ready in server : {type(tmp_id)} ==> {tmp_id} ")  # {f.read()}
 
                 # Fetch results
                 # TODO : Special function for "cleaner/more performant" check ?
-                _ = self.database_worker.get_request_result(self.database_worker.cache_db_no_decode, tmp_id)
+                _ = self.database_worker.get_request_result(
+                    self.database_worker.cache_db_no_decode, tmp_id)
 
                 result_json["Status"] = "Success"
                 result_json["request_id"] = tmp_id
                 result_json["is_ready"] = True
             except Exception as e:
-                self.logger.error(f"Normal error during GET handling ('is_ready' request) {e}")
+                self.logger.error(
+                    f"Normal error during GET handling ('is_ready' request) {e}")
                 result_json["Status"] = "Failure"
                 result_json["Error"] = "Error during database request"
                 result_json["is_ready"] = False
         else:
-            result_json = self.add_bad_method_info(result_json, good_method_instead="GET")
+            result_json = self.add_bad_method_info(
+                result_json, good_method_instead="GET")
 
         return result_json
-        # Test it with curl 127.0.0.1:5000/is_ready
+        # Test it with curl 127.0.0.1:443/is_ready
 
     def is_add_ready(self) -> Dict:
         """
@@ -329,7 +356,7 @@ class FlaskAppWrapper(object):
         # TODO : Specify one id. For now, just check the "emptiness" of all pipelines
 
         return self.are_pipelines_empty()
-        # Test it with curl 127.0.0.1:5000/wait_for_add
+        # Test it with curl 127.0.0.1:443/wait_for_add
 
     # ================= EXPORT AND DUMP =================
 
@@ -347,12 +374,14 @@ class FlaskAppWrapper(object):
         if flask.request.method == 'GET':
             try:
                 # Request export of the database and save it as a json graph
-                self.db_utils = db_utils.DBUtilities(db_access_decode=self.database_worker.storage_db_decode, db_access_no_decode=self.database_worker.storage_db_no_decode)
+                self.db_utils = db_utils.DBUtilities(
+                    db_access_decode=self.database_worker.storage_db_decode, db_access_no_decode=self.database_worker.storage_db_no_decode)
                 graph = self.db_utils.get_storage_graph()
                 graph_dict = graph.export_as_dict()
 
                 # Save to file
-                json_import_export.save_json(graph_dict, get_homedir() / "export_folder" / "db_graphe.json")
+                json_import_export.save_json(
+                    graph_dict, get_homedir() / "export_folder" / "db_graphe.json")
 
                 result_json["Status"] = "Success"
                 result_json["db"] = graph_dict
@@ -361,10 +390,11 @@ class FlaskAppWrapper(object):
                 result_json["Status"] = "Failure"
                 result_json["Error"] = "Error during db exportation to file"
         else:
-            result_json = self.add_bad_method_info(result_json, good_method_instead="GET")
+            result_json = self.add_bad_method_info(
+                result_json, good_method_instead="GET")
 
         return result_json
-        # Test it with curl 127.0.0.1:5000
+        # Test it with curl 127.0.0.1:443
 
     # ================= FLUSH =================
 
@@ -389,10 +419,11 @@ class FlaskAppWrapper(object):
                 result_json["Status"] = "Failure"
                 result_json["Error"] = "Error during db exportation to file"
         else:
-            result_json = self.add_bad_method_info(result_json, good_method_instead="GET")
+            result_json = self.add_bad_method_info(
+                result_json, good_method_instead="GET")
 
         return result_json
-        # Test it with curl 127.0.0.1:5000
+        # Test it with curl 127.0.0.1:443
 
     # ================= UTILITIES =================
 
@@ -442,22 +473,26 @@ class FlaskAppWrapper(object):
         :return: the modified result_json
         """
         # Received : werkzeug.datastructures.FileStorage. Should use ".read()" to get picture's value
-        self.logger.debug(f"Image received in server : {type(file)} ")  # {f.read()}
+        self.logger.debug(
+            f"Image received in server : {type(file)} ")  # {f.read()}
 
         # Compute input picture hash and convert to BMP
         f_hash = id_generator.get_SHA1(file)
         f_bmp = id_generator.convert_to_bmp(file)  # Returns a bytes array
-        self.logger.debug(f"Image transformed in BMP in server : {type(f_bmp)} ")  # {f_bmp}
+        self.logger.debug(
+            f"Image transformed in BMP in server : {type(f_bmp)} ")  # {f_bmp}
 
         # Save received picture to disk
-        picture_import_export.save_picture(f_bmp, get_homedir() / 'datasets' / 'received_pictures' / (str(f_hash) + '.bmp'))
+        picture_import_export.save_picture(f_bmp, get_homedir(
+        ) / 'datasets' / 'received_pictures' / (str(f_hash) + '.bmp'))
         # If the filename need to be used : secure_filename(f.filename)
 
         # Generate uuid from SHA-1 : # Done : Create request UUID ? Or keep image hash ?
         tmp_uuid = str(uuid.uuid5(uuid.NAMESPACE_URL, f_hash))
 
         # Enqueue picture to processing
-        self.logger.debug(f"Adding to feature queue : {f_hash} hash transformed into -> {tmp_uuid} uuid v5")  # {f_bmp}
+        self.logger.debug(
+            f"Adding to feature queue : {f_hash} hash transformed into -> {tmp_uuid} uuid v5")  # {f_bmp}
         self.database_worker.add_to_queue(self.database_worker.cache_db_decode,
                                           queue_name=queue,
                                           input_id=tmp_uuid,
@@ -471,7 +506,8 @@ class FlaskAppWrapper(object):
 
 # Launcher for this worker. Launch this file to launch a worker
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Launch Flask API on server side')
+    parser = argparse.ArgumentParser(
+        description='Launch Flask API on server side')
     parser = arg_parser.add_arg_db_conf(parser)
     parser = arg_parser.add_arg_ws_conf(parser)
 

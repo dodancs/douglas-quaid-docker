@@ -25,22 +25,26 @@ class ClientInstanceExample:
 
         self.logger.info(f"Launching webservice ...")
         self.perform_ping_check()
-        self.perform_upload(get_homedir() / "datasets" / "douglas-quaid-tests" / "API_pictures" / "image.jpg")
+        self.perform_upload(get_homedir() / "datasets" /
+                            "douglas-quaid-tests" / "API_pictures" / "image.jpg")
 
         self.logger.info(f"Add ? ")
         input()
-        self.perform_upload(get_homedir() / "datasets" / "douglas-quaid-tests" / "API_pictures" / "image.png")
+        self.perform_upload(get_homedir() / "datasets" /
+                            "douglas-quaid-tests" / "API_pictures" / "image.png")
 
         self.logger.info(f"Request ? ")
         input()
-        request_id = self.perform_request(get_homedir() / "datasets" / "douglas-quaid-tests" / "API_pictures" / "image.bmp")
+        request_id = self.perform_request(
+            get_homedir() / "datasets" / "douglas-quaid-tests" / "API_pictures" / "image.bmp")
 
         self.logger.info(f"Polling ... ")
         self.poll_until_result_ready(request_id)
 
         self.logger.info(f"Add ? ")
         input()
-        self.perform_upload(get_homedir() / "datasets" / "douglas-quaid-tests" / "API_pictures" / "image.bmp")
+        self.perform_upload(get_homedir() / "datasets" /
+                            "douglas-quaid-tests" / "API_pictures" / "image.bmp")
 
         self.logger.info(f"Fetch result ? ")
         input()
@@ -72,15 +76,17 @@ class ClientInstanceExample:
     def example():
         # Generate the API access point link to the hardcoded server
         cert = (get_homedir() / "carlhauser_client" / "cert.pem").resolve()
-        api = Simple_API(url='https://localhost:5000/', certificate_path=cert)
+        api = Simple_API(url='https://localhost/', certificate_path=cert)
 
         # Ping server, and perform uploads
         api.ping_server()
-        api.add_one_picture(get_homedir() / "datasets" / "simple_pictures" / "image.jpg")
+        api.add_one_picture(get_homedir() / "datasets" /
+                            "simple_pictures" / "image.jpg")
         # (...)
 
         # Request a picture matches
-        request_id = api.request_similar(get_homedir() / "datasets" / "simple_pictures" / "image.bmp")[1]
+        request_id = api.request_similar(
+            get_homedir() / "datasets" / "simple_pictures" / "image.bmp")[1]
         # (...)
 
         # Wait a bit
@@ -96,15 +102,18 @@ class ClientInstanceExample:
     def example_automated():
         # Generate the API access point link to the hardcoded server
         cert = (get_homedir() / "carlhauser_client" / "cert.pem").resolve()
-        api = Extended_API(url='https://localhost:5000/', certificate_path=cert)
+        api = Extended_API(url='https://localhost/',
+                           certificate_path=cert)
 
         # Ping server, and perform uploads
         api.ping_server()
-        api.add_many_pictures_and_wait_global(get_homedir() / "datasets" / "simple_pictures")
+        api.add_many_pictures_and_wait_global(
+            get_homedir() / "datasets" / "simple_pictures")
         # (...)
 
         # Request a picture matches
-        list_answers, nb_pics = api.request_many_pictures_and_wait_global(get_homedir() / "datasets" / "simple_pictures")
+        list_answers, nb_pics = api.request_many_pictures_and_wait_global(
+            get_homedir() / "datasets" / "simple_pictures")
         # (...)
 
         # Triggers a DB export of the server as-is, to be displayed with visjsclassificator. Dump to a file on server side too.
@@ -119,7 +128,8 @@ class ClientInstanceExample:
         api.ping_server()
 
         # Request a picture matches
-        list_answers = api.add_and_request_and_dump_pictures(get_homedir() / "datasets" / "simple_pictures")
+        list_answers = api.add_and_request_and_dump_pictures(
+            get_homedir() / "datasets" / "simple_pictures")
 
         # Triggers a DB export of the server as-is, to be displayed with visjsclassificator. Dump to a file on server side too.
         graph = api.export_db_server()[1]
@@ -130,7 +140,8 @@ class ClientInstanceExample:
         api = Extended_API.get_api()
 
         # Request a picture matches
-        list_answers = api.add_and_request_and_dump_pictures(get_homedir() / "datasets" / "simple_pictures")
+        list_answers = api.add_and_request_and_dump_pictures(
+            get_homedir() / "datasets" / "simple_pictures")
 
 
 if __name__ == '__main__':

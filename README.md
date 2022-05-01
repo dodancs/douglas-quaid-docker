@@ -120,7 +120,7 @@ from carlhauser_client.API.simple_api import Simple_API
 
 # Generate the API access point link to the hardcoded server
 cert = (get_homedir() / "carlhauser_client" / "cert.pem").resolve()
-api = Simple_API(url='https://localhost:5000/', certificate_path=cert)
+api = Simple_API(url='https://localhost/', certificate_path=cert)
 
 # Each call to API return 2 values. 
 # First value = success boolean, Second value = json response of the server
@@ -153,7 +153,7 @@ from carlhauser_client.API.extended_api import Extended_API
 
 # Generate the API access point link to the hardcoded server
 cert = (get_homedir() / "carlhauser_client" / "cert.pem").resolve()
-api = Extended_API(url='https://localhost:5000/', certificate_path=cert)
+api = Extended_API(url='https://localhost/', certificate_path=cert)
 
 # Ping server (sanity check, not technicaly required) 
 api.ping_server()

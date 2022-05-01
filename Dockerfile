@@ -78,7 +78,7 @@ ENV PYTHONPATH /app/
 
 VOLUME [ "/app/storage", "/app/carlhauser_server/Data/database_data" ]
 
-EXPOSE 5000
+EXPOSE 443
 
 CMD [ "./start.sh" ]
 
