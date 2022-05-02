@@ -171,7 +171,7 @@ def build_response(request_id, list_cluster: List[ClusterMatch], list_pictures: 
     results["request_id"] = request_id
 
     if len(list_pictures) > 0:
-        results["status"] = "matches_found"
+        results["Status"] = "matches_found"
 
         # Store clusters
         tmp_list = [cluster.to_obj() for cluster in list_cluster]
@@ -181,6 +181,6 @@ def build_response(request_id, list_cluster: List[ClusterMatch], list_pictures: 
         tmp_list = [picture.to_obj() for picture in list_pictures]
         results["list_pictures"] = tmp_list
     else:
-        results["status"] = "matches_not_found"
+        results["Status"] = "matches_not_found"
 
     return results
