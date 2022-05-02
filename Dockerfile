@@ -64,17 +64,33 @@ RUN apk add --no-cache --virtual .build-deps \
     cd /tmp && \
     rm -rf /tmp/tlsh
 
+# install envsubst
+RUN \
+    apk add --no-cache --virtual .gettext gettext && \
+    mv /usr/bin/envsubst /tmp/ && \
+    runDeps="$( \
+    scanelf --needed --nobanner /tmp/envsubst \
+    | awk '{ gsub(/,/, "\nso:", $2); print "so:" $2 }' \
+    | sort -u \
+    | xargs -r apk info --installed \
+    | sort -u \
+    )" && \
+    apk add --no-cache $runDeps && \
+    apk del .gettext && \
+    mv /tmp/envsubst /usr/local/bin/
+
+COPY ./logging.ini.template /app/logging.ini.template
 COPY ./carlhauser_server /app/carlhauser_server
 COPY ./carlhauser_client/API/extended_api.py /app/carlhauser_client/API/extended_api.py
 COPY ./carlhauser_client/API/simple_api.py /app/carlhauser_client/API/simple_api.py
 COPY ./carlhauser_client/Helpers/dict_utilities.py /app/carlhauser_client/Helpers/dict_utilities.py
-COPY ./carlhauser_client/logging.ini /app/carlhauser_client/logging.ini
 COPY ./carlhauser_client/cert.pem /app/carlhauser_client/cert.pem
 COPY ./common /app/common
 COPY ./start.sh /app/start.sh
 
 ENV CARLHAUSER_HOME /app/
 ENV PYTHONPATH /app/
+ENV DEBUG_LEVEL INFO
 
 VOLUME [ "/app/storage", "/app/carlhauser_server/Data/database_data" ]
 
