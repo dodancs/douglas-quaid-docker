@@ -29,7 +29,8 @@ class Distance_BoW_ORB:
         self.fe_conf = fe_conf
 
         # TODO :
-        self.orb_matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=dist_conf.CROSSCHECK)
+        self.orb_matcher = cv2.BFMatcher(
+            cv2.NORM_HAMMING, crossCheck=dist_conf.CROSSCHECK)
 
     def bow_orb_distance(self, pic_package_from: Dict, pic_package_to: Dict) -> Dict[str, sd.AlgoMatch]:
         """
@@ -40,22 +41,26 @@ class Distance_BoW_ORB:
         """
 
         answer = {}
-        self.logger.info("BoW-Orb distance computation ... ")
+        self.logger.debug("BoW-Orb distance computation ... ")
 
         # Verify if what is needed to compute it is present
         if pic_package_from.get("BOW_ORB_DESCRIPTOR", None) is None \
                 or pic_package_to.get("BOW_ORB_DESCRIPTOR", None) is None:
-            self.logger.warning(f"BoW-ORB descriptors are NOT presents in the results")
-            raise AlgoFeatureNotPresentError("None BoW-ORB descriptors in orb distance.")
+            self.logger.warning(
+                f"BoW-ORB descriptors are NOT presents in the results")
+            raise AlgoFeatureNotPresentError(
+                "None BoW-ORB descriptors in orb distance.")
 
         # Add result for enabled algorithms
         try:
             if self.fe_conf.BOW_ORB.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.BOW_ORB, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.BOW_ORB, pic_package_from, pic_package_to, answer)
 
         except Exception as e:
             self.logger.error(traceback.print_tb(e.__traceback__))
-            self.logger.error("Error during bow-orb distance calculation : " + str(e))
+            self.logger.error(
+                "Error during bow-orb distance calculation : " + str(e))
 
         return answer
 

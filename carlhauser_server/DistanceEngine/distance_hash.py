@@ -38,30 +38,36 @@ class Distance_Hash:
         :return: A dictionary of algo name to the match detail (distance, decision ..)
         """
         answer = {}
-        self.logger.info("Hash distance computation ... ")
         self.logger.debug("Hash distance computation ... ")
 
         try:
             if self.fe_conf.A_HASH.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.A_HASH, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.A_HASH, pic_package_from, pic_package_to, answer)
 
             if self.fe_conf.P_HASH.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.P_HASH, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.P_HASH, pic_package_from, pic_package_to, answer)
 
             if self.fe_conf.P_HASH_SIMPLE.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.P_HASH_SIMPLE, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.P_HASH_SIMPLE, pic_package_from, pic_package_to, answer)
 
             if self.fe_conf.D_HASH.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.D_HASH, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.D_HASH, pic_package_from, pic_package_to, answer)
 
             if self.fe_conf.D_HASH_VERTICAL.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.D_HASH_VERTICAL, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.D_HASH_VERTICAL, pic_package_from, pic_package_to, answer)
 
             if self.fe_conf.W_HASH.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.W_HASH, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.W_HASH, pic_package_from, pic_package_to, answer)
 
             if self.fe_conf.TLSH.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.TLSH, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.TLSH, pic_package_from, pic_package_to, answer)
 
         except Exception as e:
             self.logger.error(traceback.print_tb(e.__traceback__))
@@ -84,9 +90,11 @@ class Distance_Hash:
         self.logger.debug(f"Algo name detected : {algo_name}")
 
         if pic_package_from.get(algo_name, None) is None or pic_package_to.get(algo_name, None) is None:
-            self.logger.warning(f"Algo hashes values are NOT presents in the results.")
+            self.logger.warning(
+                f"Algo hashes values are NOT presents in the results.")
         else:
-            self.logger.debug(f"Algo hashes values are presents in the results.")
+            self.logger.debug(
+                f"Algo hashes values are presents in the results.")
 
             if algo_name != "TLSH":
                 # We want to compute any hash, except tlsh

@@ -30,7 +30,8 @@ class Feature_Worker(database_accessor.Database_Worker):
 
         self.picture_hasher = picture_hasher.Picture_Hasher(tmp_fe_conf)
         self.picture_orber = picture_orber.Picture_Orber(tmp_fe_conf)
-        self.picture_bow_orber = picture_bow_orber.Picture_BoW_Orber(tmp_fe_conf)
+        self.picture_bow_orber = picture_bow_orber.Picture_BoW_Orber(
+            tmp_fe_conf)
 
     def fetch_from_queue(self) -> (str, Dict):
         """
@@ -48,18 +49,20 @@ class Feature_Worker(database_accessor.Database_Worker):
         :return: Nothing (or to be defined)
         """
         # Get picture from picture_id
-        try :
+        try:
             picture = fetched_dict[b"img"]
-        except Exception as e :
-            self.logger.critical(f"Error while fetching dictionnary : {e} with {fetched_dict}")
-            raise Exception(f"Impossible to fetch image in stored dictionary in feature worker : {e}")
-        self.logger.info(f"Loaded picture {type(picture)}")
+        except Exception as e:
+            self.logger.critical(
+                f"Error while fetching dictionnary : {e} with {fetched_dict}")
+            raise Exception(
+                f"Impossible to fetch image in stored dictionary in feature worker : {e}")
+        self.logger.debug(f"Loaded picture {type(picture)}")
 
         # Get hash values of picture
-        try :
+        try:
             hash_dict = self.picture_hasher.hash_picture(picture)
             self.logger.debug(f"Computed hashes : {hash_dict}")
-        except Exception as e :
+        except Exception as e:
             traceback.print_tb(e.__traceback__)
             self.logger.error(f"Error while computing hash dictionnary : {e}")
             hash_dict = {}
@@ -68,18 +71,20 @@ class Feature_Worker(database_accessor.Database_Worker):
         try:
             orb_dict = self.picture_orber.orb_picture(picture)
             self.logger.debug(f"Computed orb values : {orb_dict}")
-        except Exception as e :
+        except Exception as e:
             traceback.print_tb(e.__traceback__)
             self.logger.error(f"Error while computing orb dictionnary : {e}")
             orb_dict = {}
 
         # Get BoW-ORB values of picture
         try:
-            bow_orb_dict = self.picture_bow_orber.bow_orb_picture(picture, orb_dict)
+            bow_orb_dict = self.picture_bow_orber.bow_orb_picture(
+                picture, orb_dict)
             self.logger.debug(f"Computed bow orb values : {bow_orb_dict}")
-        except Exception as e :
+        except Exception as e:
             traceback.print_tb(e.__traceback__)
-            self.logger.error(f"Error while computing BoW-Orb dictionnary : {e}")
+            self.logger.error(
+                f"Error while computing BoW-Orb dictionnary : {e}")
             bow_orb_dict = {}
 
         # Merge dictionaries
@@ -88,13 +93,16 @@ class Feature_Worker(database_accessor.Database_Worker):
 
         # Remove old data and send dictionary in hashmap to redis
         # TODO : self.cache_db.del(fetched_id) # There is already an expire time
-        self.add_to_queue(self.cache_db_no_decode, self.ouput_queue, fetched_id, merged_dict, pickle=True)
+        self.add_to_queue(self.cache_db_no_decode, self.ouput_queue,
+                          fetched_id, merged_dict, pickle=True)
         print(make_small_line())
         print("Feature Worker ready to accept more queries.")
 
+
 # Launcher for this worker. Launch this file to launch a worker
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Launch a worker for a specific task.')
+    parser = argparse.ArgumentParser(
+        description='Launch a worker for a specific task.')
 
     parser = arg_parser.add_arg_db_conf(parser)
     parser = arg_parser.add_arg_fe_conf(parser)

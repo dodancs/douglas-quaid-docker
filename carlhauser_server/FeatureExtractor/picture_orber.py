@@ -16,7 +16,7 @@ load_server_logging_conf_file()
 class Picture_Orber:
     def __init__(self, fe_conf: feature_extractor_conf.Default_feature_extractor_conf):
         # STD attributes
-        self.fe_conf : feature_extractor_conf.Default_feature_extractor_conf = fe_conf
+        self.fe_conf: feature_extractor_conf.Default_feature_extractor_conf = fe_conf
         self.logger = logging.getLogger(__name__)
         self.logger.info("Creation of a Picture Orber")
         self.algo = cv2.ORB_create(nfeatures=fe_conf.ORB_KEYPOINTS_NB)
@@ -28,7 +28,7 @@ class Picture_Orber:
         :return: the orb version of the picture
         """
         answer = {}
-        self.logger.info("Orbing picture ... ")
+        self.logger.debug("Orbing picture ... ")
 
         # orb_pic =  np.array(curr_picture)
         arr = np.asarray(bytearray(curr_picture), dtype=np.uint8)
@@ -41,7 +41,8 @@ class Picture_Orber:
             # Note : @image must be a PIL instance.
             if self.fe_conf.ORB.get("is_enabled", False) or self.fe_conf.RANSAC_ORB.get("is_enabled", False):
                 # Picture loading handled in picture load_image overwrite
-                key_points, descriptors = self.algo.detectAndCompute(orb_pic, None)
+                key_points, descriptors = self.algo.detectAndCompute(
+                    orb_pic, None)
 
                 # Store representation information in the picture itself
                 answer["ORB_KEYPOINTS"] = key_points
@@ -51,7 +52,8 @@ class Picture_Orber:
                     self.logger.warning(f"WARNING : picture has no keypoints")
                     raise Exception("NO KEYPOINTS")
                 if descriptors is None or descriptors == []:
-                    self.logger.warning(f"WARNING : picture has no descriptors")
+                    self.logger.warning(
+                        f"WARNING : picture has no descriptors")
                     raise Exception("NO DESCRIPTOR")
 
         except Exception as e:

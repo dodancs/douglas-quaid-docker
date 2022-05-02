@@ -38,40 +38,50 @@ class Database_Adder(database_common.Database_Common):
         """
 
         self.logger.info(f"DB Adder worker processing {fetched_id}")
-        self.logger.info(f"Fetched dict {fetched_dict}")
+        self.logger.debug(f"Fetched dict {fetched_dict}")
 
         # Add picture to storage
         self.logger.info(f"Adding picture to storage under id {fetched_id}")
-        self.add_picture_to_storage(self.storage_db_no_decode, fetched_id, fetched_dict)  # NOT DECODE
+        self.add_picture_to_storage(
+            self.storage_db_no_decode, fetched_id, fetched_dict)  # NOT DECODE
 
         # Get top matching pictures in clusters
-        top_matching_pictures, list_matching_clusters = self.get_top_matching_pictures(fetched_dict)
+        top_matching_pictures, list_matching_clusters = self.get_top_matching_pictures(
+            fetched_dict)
 
-        self.logger.debug(f"list_matching_clusters {pformat(list_matching_clusters)}")
-        self.logger.debug(f"top_matching_pictures {pformat(top_matching_pictures)}")
+        self.logger.debug(
+            f"list_matching_clusters {pformat(list_matching_clusters)}")
+        self.logger.debug(
+            f"top_matching_pictures {pformat(top_matching_pictures)}")
 
         # Depending on the quality of the match ...
         # if self.is_good_match(top_matching_pictures):
         # TODO : TO VERIFY WHICH TO PICK
-        cluster_id = self.choose_cluster_from_cluster_matches(list_matching_clusters)
+        cluster_id = self.choose_cluster_from_cluster_matches(
+            list_matching_clusters)
         # cluster_id = self.choose_cluster_from_pics_matches(top_matching_pictures)
         if cluster_id is not None:
-            self.logger.error(f"Match is good enough with at least one cluster")
+            self.logger.error(
+                f"Match is good enough with at least one cluster")
 
             # Add picture to best picture's cluster
             cluster_id = top_matching_pictures[0].cluster_id
             self.db_utils.add_picture_to_cluster(fetched_id, cluster_id)
 
             # Re-evaluate representative picture(s) of cluster
-            self.reevaluate_representative_picture_order(cluster_id, fetched_id=fetched_id)
-            self.logger.info(f"Picture added in existing cluster : {cluster_id}")
+            self.reevaluate_representative_picture_order(
+                cluster_id, fetched_id=fetched_id)
+            self.logger.info(
+                f"Picture added in existing cluster : {cluster_id}")
 
         else:
             self.logger.info(f"Match not good enough, with any cluster")
             # Add picture to it's own cluster
             # First picture is "alone" and so central (score=0)
-            cluster_id = self.db_utils.add_picture_to_new_cluster(fetched_id, score=0)
-            self.logger.info(f"Picture added in its own new cluster : {cluster_id}")
+            cluster_id = self.db_utils.add_picture_to_new_cluster(
+                fetched_id, score=0)
+            self.logger.info(
+                f"Picture added in its own new cluster : {cluster_id}")
 
         # Add to a queue, to be reviewed later, when more pictures will be added
         # TODO : TO ADD self.db_utils.add_to_review(fetched_id)
@@ -87,7 +97,8 @@ class Database_Adder(database_common.Database_Common):
             # normalized_dist = cur_pic.distance
             if curr_cluster.decision.name == scoring_datastrutures.DecisionTypes.YES.name and \
                     curr_cluster.distance <= self.dist_conf.MAX_DIST_FOR_NEW_CLUSTER:
-                self.logger.error(f"Cluster : {curr_cluster.cluster_id} matches enough. Kept")
+                self.logger.error(
+                    f"Cluster : {curr_cluster.cluster_id} matches enough. Kept")
 
                 return curr_cluster.cluster_id
             else:
@@ -120,7 +131,8 @@ class Database_Adder(database_common.Database_Common):
         # dist = real dist + majoration/minoration depending on the % difference between expected cluster size and normal size
         target_cluster_size = math.sqrt(self.db_utils.get_nb_stored_pictures())
         # self.logger.debug(f"target_cluster_size : {target_cluster_size} / picture.distance {picture.distance} / self.db_utils.get_pictures_of_cluster(picture.cluster_id) {self.db_utils.get_pictures_of_cluster(picture.cluster_id)}")
-        normalized_dist = picture.distance + ((len(self.db_utils.get_pictures_of_cluster(picture.cluster_id)) - target_cluster_size) / target_cluster_size)
+        normalized_dist = picture.distance + ((len(self.db_utils.get_pictures_of_cluster(
+            picture.cluster_id)) - target_cluster_size) / target_cluster_size)
 
         return normalized_dist
 
@@ -138,36 +150,47 @@ class Database_Adder(database_common.Database_Common):
             # 0(N²) operation with N being the number of elements in the cluster
 
             # Get all picture ids of the cluster
-            pictures_sorted_set = self.db_utils.get_pictures_of_cluster(cluster_id)
+            pictures_sorted_set = self.db_utils.get_pictures_of_cluster(
+                cluster_id)
 
             for curr_pic in pictures_sorted_set:
                 # For each picture, compute its centrality and store it
-                curr_pic_dict = self.get_dict_from_key(self.storage_db_no_decode, curr_pic, pickle=True)
-                centrality_score = self.compute_centrality(pictures_sorted_set, curr_pic_dict)
+                curr_pic_dict = self.get_dict_from_key(
+                    self.storage_db_no_decode, curr_pic, pickle=True)
+                centrality_score = self.compute_centrality(
+                    pictures_sorted_set, curr_pic_dict)
 
                 # Replace the current sum (set value) of distance by the newly computed on
-                self.db_utils.update_picture_score_of_cluster(cluster_id, curr_pic, centrality_score)
+                self.db_utils.update_picture_score_of_cluster(
+                    cluster_id, curr_pic, centrality_score)
         else:
             # We know which picture was added last, and so begin by this one.
             # 0(2.N) operation with N being the number of elements in the cluster
 
             # Get all picture ids of the cluster, with their actual score
-            pictures_sorted_set = self.db_utils.get_pictures_of_cluster(cluster_id, with_score=True)
+            pictures_sorted_set = self.db_utils.get_pictures_of_cluster(
+                cluster_id, with_score=True)
 
             # Compute the centrality of the new picture and update its score : 0(N)
-            new_pic_dict = self.get_dict_from_key(self.storage_db_no_decode, fetched_id, pickle=True)
-            centrality_score = self.compute_centrality([i[0] for i in pictures_sorted_set], new_pic_dict)
-            self.db_utils.update_picture_score_of_cluster(cluster_id, fetched_id, centrality_score)
+            new_pic_dict = self.get_dict_from_key(
+                self.storage_db_no_decode, fetched_id, pickle=True)
+            centrality_score = self.compute_centrality(
+                [i[0] for i in pictures_sorted_set], new_pic_dict)
+            self.db_utils.update_picture_score_of_cluster(
+                cluster_id, fetched_id, centrality_score)
 
             # And for each other picture, add the distance between itself and this new picture to its score : 0(N)
             for curr_pic, score in pictures_sorted_set:
                 # Important ! Because current score is not updated by previous calculation (tricky race condition)
                 if curr_pic == fetched_id:
                     continue
-                curr_target_pic_dict = self.get_dict_from_key(self.storage_db_no_decode, curr_pic, pickle=True)
-                delta_centrality, decision = self.de.get_dist_and_decision_picture_to_picture(new_pic_dict, curr_target_pic_dict)
+                curr_target_pic_dict = self.get_dict_from_key(
+                    self.storage_db_no_decode, curr_pic, pickle=True)
+                delta_centrality, decision = self.de.get_dist_and_decision_picture_to_picture(
+                    new_pic_dict, curr_target_pic_dict)
                 # Update the centrality of the current picture with the new "added value".
-                self.db_utils.update_picture_score_of_cluster(cluster_id, curr_pic, score + delta_centrality)
+                self.db_utils.update_picture_score_of_cluster(
+                    cluster_id, curr_pic, score + delta_centrality)
 
         # TODO : Somewhat already done before. May be able to memoize the computed values ?
 
@@ -184,8 +207,10 @@ class Database_Adder(database_common.Database_Common):
 
         # For each picture, compute its distance to other picture, summing it temporary
         for curr_target_pic in pictures_list_id:
-            curr_target_pic_dict = self.get_dict_from_key(self.storage_db_no_decode, curr_target_pic, pickle=True)
-            dist, decision = self.de.get_dist_and_decision_picture_to_picture(picture_dict, curr_target_pic_dict)
+            curr_target_pic_dict = self.get_dict_from_key(
+                self.storage_db_no_decode, curr_target_pic, pickle=True)
+            dist, decision = self.de.get_dist_and_decision_picture_to_picture(
+                picture_dict, curr_target_pic_dict)
             # TODO : use decision in centrality computation ?
             curr_sum += dist
 
@@ -199,7 +224,8 @@ if __name__ == '__main__':
     # python3 -m cProfile -o temp.dat <PROGRAM>.py
     # python3 -m cProfile -o database_adder.dat ./database_adder.py -dbc ./../../tmp_db_conf.json -distc ./../../tmp_dist_conf.json -fec ./../../tmp_fe_conf.json
     # python3 ./database_adder.py -dbc ./../../tmp_db_conf.json -distc ./../../tmp_dist_conf.json -fec ./../../tmp_fe_conf.json
-    parser = argparse.ArgumentParser(description='Launch a worker for a specific task : adding picture to database')
+    parser = argparse.ArgumentParser(
+        description='Launch a worker for a specific task : adding picture to database')
     parser = arg_parser.add_arg_db_conf(parser)
     parser = arg_parser.add_arg_dist_conf(parser)
     parser = arg_parser.add_arg_fe_conf(parser)

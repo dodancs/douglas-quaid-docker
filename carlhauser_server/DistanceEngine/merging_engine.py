@@ -22,12 +22,14 @@ class Merging_Engine:
         # Save configuration
         # self.db_conf = db_conf  # TODO : REMOVE = NOT USEFUL FOR NOW !
         # self.dist_conf = dist_conf  # TODO : REMOVE = NOT USEFUL FOR NOW !
-        self.fe_conf : feature_extractor_conf.Default_feature_extractor_conf = fe_conf
+        self.fe_conf: feature_extractor_conf.Default_feature_extractor_conf = fe_conf
 
         # Transform text into Enum back.
         # TODO : Properly handle enum passed by file. Maybe https://stackoverflow.com/questions/22562425/attributeerror-cant-set-attribute-in-python ?
-        self.distance_merging_method = feature_extractor_conf.Distance_MergingMethod[self.fe_conf.DISTANCE_MERGING_METHOD]
-        self.decision_merging_method = feature_extractor_conf.Decision_MergingMethod[self.fe_conf.DECISION_MERGING_METHOD]
+        self.distance_merging_method = feature_extractor_conf.Distance_MergingMethod[
+            self.fe_conf.DISTANCE_MERGING_METHOD]
+        self.decision_merging_method = feature_extractor_conf.Decision_MergingMethod[
+            self.fe_conf.DECISION_MERGING_METHOD]
 
     # ==================== ------ PICTURE-PICTURE DISTANCE ------- ====================
 
@@ -38,7 +40,8 @@ class Merging_Engine:
         :return: a unique distance
         """
 
-        self.logger.info(f"Received algorithms distance to merge {matches_package}")
+        self.logger.debug(
+            f"Received algorithms distance to merge {matches_package}")
 
         # Depending on the merging method, choose the good function
         if self.distance_merging_method == feature_extractor_conf.Distance_MergingMethod.MAX:
@@ -57,7 +60,8 @@ class Merging_Engine:
             score = self.get_harmonic_mean_dict(matches_package)
 
         else:
-            raise Exception("Unrecognized merging method to merge algorithm output into one value. Please review configuration file.")
+            raise Exception(
+                "Unrecognized merging method to merge algorithm output into one value. Please review configuration file.")
 
         return score
 
@@ -68,7 +72,8 @@ class Merging_Engine:
         :return: a unique decision
         """
 
-        self.logger.info(f"Received algorithms distance to merge {matches_package}")
+        self.logger.debug(
+            f"Received algorithms distance to merge {matches_package}")
 
         # Depending on the merging method, choose the good function
         if self.decision_merging_method == feature_extractor_conf.Decision_MergingMethod.PARETO:
@@ -84,7 +89,8 @@ class Merging_Engine:
             decision = self.get_pyramid_decision(matches_package)
 
         else:
-            raise Exception("Unrecognized merging method to merge algorithm output into one value. Please review configuration file.")
+            raise Exception(
+                "Unrecognized merging method to merge algorithm output into one value. Please review configuration file.")
 
         return decision
 
@@ -101,11 +107,13 @@ class Merging_Engine:
         :param distance_list: a list of distance
         :return: one only distance
         """
-        self.logger.info(f"Received picture-cluster's picture distance to merge {distance_list}")
+        self.logger.debug(
+            f"Received picture-cluster's picture distance to merge {distance_list}")
         if len(distance_list) != 0:
             return max(distance_list)
         else:
-            self.logger.error(f"A Cluster is empty but exists. Structural behavior error detected.")
+            self.logger.error(
+                f"A Cluster is empty but exists. Structural behavior error detected.")
             raise Exception("Empty cluster, but exists.")
 
     def merge_pictures_decisions(self, decision_list: List[sd.DecisionTypes]) -> sd.DecisionTypes:
@@ -115,7 +123,8 @@ class Merging_Engine:
         :return: one only decision
         """
 
-        self.logger.info(f"Received picture-cluster's picture decision to merge {decision_list}")
+        self.logger.info(
+            f"Received picture-cluster's picture decision to merge {decision_list}")
         if len(decision_list) != 0:
             # Construct a dict : YES=0, MAYBE=0, NO=0
             tmp_decisions = {decision.name: 0 for decision in decision_list}
@@ -125,7 +134,8 @@ class Merging_Engine:
 
             return self.get_prevalent_decision(tmp_decisions)
         else:
-            self.logger.error(f"A Cluster is empty but exists. Structural behavior error detected.")
+            self.logger.error(
+                f"A Cluster is empty but exists. Structural behavior error detected.")
             raise Exception("Empty cluster, but exists.")
 
     # ==================== ------ CLUSTER-CLUSTER DISTANCE ------- ====================
@@ -161,7 +171,8 @@ class Merging_Engine:
             curr_score = matches_package.get(curr_algo.get("algo_name"))
             if curr_score is not None:
                 # We add the score of this algorithm
-                sum_score += curr_score.distance * curr_algo.get("distance_weight")
+                sum_score += curr_score.distance * \
+                    curr_algo.get("distance_weight")
                 # We add the weight of this algorithm
                 sum_weight += curr_algo.get("distance_weight")
 
@@ -257,7 +268,8 @@ class Merging_Engine:
             # We group all matches results, related to these algorithms
             tmp_list_matches = {}
             for algo in tmp_list_algo:
-                tmp_list_matches[algo.get("algo_name")] = matches_package.get(algo.get("algo_name"))
+                tmp_list_matches[algo.get("algo_name")] = matches_package.get(
+                    algo.get("algo_name"))
 
             # We take a decision up to all algorithms at this weight level
             decision = self.get_majority_decision(tmp_list_matches)
@@ -278,7 +290,8 @@ class Merging_Engine:
         :return: a dict which map decision to number of occurrences of this decision
         """
         # Create a dict : YES=0, MAYBE=0, NO=0
-        tmp_decisions = {decision.name: 0 for decision in list(sd.DecisionTypes)}
+        tmp_decisions = {
+            decision.name: 0 for decision in list(sd.DecisionTypes)}
 
         for curr_algo in self.fe_conf.list_algos:
             # self.logger.debug(f"Current algo {curr_algo}.")
@@ -288,7 +301,8 @@ class Merging_Engine:
             if curr_score is not None:
                 # We add the score of this algorithm (it's weight)
                 if weighted:
-                    tmp_decisions[curr_score.decision.name] += curr_algo.get("decision_weight")
+                    tmp_decisions[curr_score.decision.name] += curr_algo.get(
+                        "decision_weight")
                 else:
                     tmp_decisions[curr_score.decision.name] += 1
 

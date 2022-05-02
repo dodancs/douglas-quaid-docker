@@ -35,17 +35,19 @@ class Database_Requester(database_common.Database_Common):
         :return: Nothing (or to be defined)
         """
         self.logger.info(f"DB Request worker processing {fetched_id}")
-        self.logger.info(f"Fetched dict {fetched_dict}")
+        self.logger.debug(f"Fetched dict {fetched_dict}")
 
         # Beaware, that this is a request only : Do NOT add picture to storage
 
         # Get top matching pictures in clusters
-        top_matching_pictures, list_matching_clusters = self.get_top_matching_pictures(fetched_dict)
+        top_matching_pictures, list_matching_clusters = self.get_top_matching_pictures(
+            fetched_dict)
 
         # Depending on the quality of the match ...
         if self.is_good_match(top_matching_pictures):
             self.logger.info(f"Match is good enough with at least one cluster")
-            results = score_datastruct.build_response(fetched_id, list_matching_clusters, top_matching_pictures)
+            results = score_datastruct.build_response(
+                fetched_id, list_matching_clusters, top_matching_pictures)
         else:
             # Create an answer with void lists
             self.logger.info(f"Match not good enough, with any cluster")
@@ -58,10 +60,12 @@ class Database_Requester(database_common.Database_Common):
         print(make_small_line())
         print("Requester Worker ready to accept more queries.")
 
+
 # Launcher for this worker. Launch this file to launch a worker
 if __name__ == '__main__':
     # python3 -m cProfile -o database_requester.dat ./database_requester.py -dbc ./../../tmp_db_conf.json -distc ./../../tmp_dist_conf.json -fec ./../../tmp_fe_conf.json
-    parser = argparse.ArgumentParser(description='Launch a worker for a specific task : requesting picture to database')
+    parser = argparse.ArgumentParser(
+        description='Launch a worker for a specific task : requesting picture to database')
     parser = arg_parser.add_arg_db_conf(parser)
     parser = arg_parser.add_arg_dist_conf(parser)
     parser = arg_parser.add_arg_fe_conf(parser)

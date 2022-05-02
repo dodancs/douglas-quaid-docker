@@ -37,7 +37,8 @@ class Database_Worker:
         json_encoder = Custom_JSON_Encoder()
 
         # Print configuration
-        self.logger.debug(f"Configuration db_conf (db worker) : {pprint.pformat(json_encoder.encode(self.db_conf))}")
+        self.logger.debug(
+            f"Configuration db_conf (db worker) : {pprint.pformat(json_encoder.encode(self.db_conf))}")
 
         # Specific
         self.input_queue = None
@@ -48,12 +49,17 @@ class Database_Worker:
         self.redis_storage = get_homedir() / self.db_conf.DB_DATA_PATH
 
         # Get sockets
-        tmp_db_handler = database_start_stop.Database_StartStop(db_conf=tmp_db_conf)
-        self.cache_db_decode = redis.Redis(unix_socket_path=tmp_db_handler.get_socket_path('cache'), decode_responses=True)
-        self.cache_db_no_decode = redis.Redis(unix_socket_path=tmp_db_handler.get_socket_path('cache'), decode_responses=False)
+        tmp_db_handler = database_start_stop.Database_StartStop(
+            db_conf=tmp_db_conf)
+        self.cache_db_decode = redis.Redis(
+            unix_socket_path=tmp_db_handler.get_socket_path('cache'), decode_responses=True)
+        self.cache_db_no_decode = redis.Redis(
+            unix_socket_path=tmp_db_handler.get_socket_path('cache'), decode_responses=False)
 
-        self.storage_db_decode = redis.Redis(unix_socket_path=tmp_db_handler.get_socket_path('storage'), decode_responses=True)
-        self.storage_db_no_decode = redis.Redis(unix_socket_path=tmp_db_handler.get_socket_path('storage'), decode_responses=False)
+        self.storage_db_decode = redis.Redis(
+            unix_socket_path=tmp_db_handler.get_socket_path('storage'), decode_responses=True)
+        self.storage_db_no_decode = redis.Redis(
+            unix_socket_path=tmp_db_handler.get_socket_path('storage'), decode_responses=False)
 
         # Pickler with patches
         self.pickler = pickle_import_export.Pickler()
@@ -94,7 +100,8 @@ class Database_Worker:
             storage.rpush(queue_name, tmp_id)  # Add the id to the queue
             return True
         except Exception as e:
-            raise Exception(f"Unable to add dict and hash to {queue_name} queue : {e}")
+            raise Exception(
+                f"Unable to add dict and hash to {queue_name} queue : {e}")
 
     def get_from_queue(self, storage: redis.Redis, queue_name: QueueNames, pickle=False) -> (str, Dict):
         """
@@ -129,17 +136,20 @@ class Database_Worker:
                 stored_queue_name, stored_id = to_split.split("|")
 
                 # Handle removal = self.cache_db.delete(tmp_id) ==> even if already expire time (24H)
-                self.logger.info("Data had been removed as it had been fetched ! ")
+                self.logger.debug(
+                    "Data had been removed as it had been fetched ! ")
                 storage.delete(tmp_id)
 
-                self.logger.debug(f"Stuff had been fetched from queue={queue_name}")
+                self.logger.debug(
+                    f"Stuff had been fetched from queue={queue_name}")
 
                 return stored_id, fetched_dict
             else:
                 return None, None
 
         except Exception as e:
-            raise Exception(f"Unable to get dict and hash from {queue_name} queue : {e}")
+            raise Exception(
+                f"Unable to get dict and hash from {queue_name} queue : {e}")
 
     # ==================== ------ GET/SET DICT ------- ====================
 
@@ -160,7 +170,8 @@ class Database_Worker:
         if pickle:
             # Pickling the dict
             pickled_object = self.pickler.get_pickle_from_object(dict_to_store)
-            self.logger.debug(f"Size of storage object : {objsize.get_deep_size(pickled_object)}")
+            self.logger.debug(
+                f"Size of storage object : {objsize.get_deep_size(pickled_object)}")
             answer = storage.set(key, pickled_object)
         else:
             # Store the dict
@@ -296,14 +307,17 @@ class Database_Worker:
                 self.failure_nb = 0
                 return False
             else:  # The key has been set to something, "Now","Yes", ...
-                self.logger.info("HALT key detected. Worker received stop signal ... ")
+                self.logger.info(
+                    "HALT key detected. Worker received stop signal ... ")
                 return True
         except Exception as e:
-            self.logger.error(f"Impossible to know if the worker has to halt : {e}")
+            self.logger.error(
+                f"Impossible to know if the worker has to halt : {e}")
             self.failure_nb += 1
             if self.failure_nb > self.FAILURE_THRESHOLD:
                 # There was to many failure, we stop the worker as we can't connect to DB
-                self.logger.critical(f"Too many failures to connect to the DB. Stopping worker")
+                self.logger.critical(
+                    f"Too many failures to connect to the DB. Stopping worker")
                 return True
             return False
 
@@ -317,18 +331,22 @@ class Database_Worker:
 
             self.logger.info(f'Launching {self.__class__.__name__}')
             if self.input_queue is None:
-                raise Exception("No input queue set for current worker. Impossible to fetch work to do. Worker aborted.")
+                raise Exception(
+                    "No input queue set for current worker. Impossible to fetch work to do. Worker aborted.")
             if self.is_halt_requested():
-                self.logger.error(f'Halt detected even before worker launch in Redis. Aborting worker launch ... ')
+                self.logger.error(
+                    f'Halt detected even before worker launch in Redis. Aborting worker launch ... ')
 
             while not self.is_halt_requested():
                 try:
                     self._to_run_forever()
                 except Exception as e:
-                    self.logger.error(f'Something went terribly wrong in {self.__class__.__name__} : {e.__class__} {e}')
+                    self.logger.error(
+                        f'Something went terribly wrong in {self.__class__.__name__} : {e.__class__} {e}')
 
                 if not self.long_sleep(sleep_in_sec):
-                    self.logger.warning(f'Halt detected in db worker. Exiting worker execution ... ')
+                    self.logger.warning(
+                        f'Halt detected in db worker. Exiting worker execution ... ')
                     break
 
         except KeyboardInterrupt:
@@ -354,12 +372,13 @@ class Database_Worker:
         if not fetched_id:
             # Nothing to do
             time.sleep(0.1)
-        else :
+        else:
             try:
                 self.process_fetched_data(fetched_id, fetched_dict)
 
             except Exception as e:
-                self.logger.error(f"Error in database worker (DB adder, db Request or FeatureExtractor or ... ) : {e}")
+                self.logger.error(
+                    f"Error in database worker (DB adder, db Request or FeatureExtractor or ... ) : {e}")
                 self.logger.error(traceback.print_tb(e.__traceback__))
 
     def fetch_from_queue(self) -> (str, Dict):
@@ -372,7 +391,8 @@ class Database_Worker:
         :param fetched_dict: data to process
         :return: Nothing (or to be defined)
         """
-        self.logger.critical("YOU SHOULD OVERWRITE 'process_fetched_data' of the database_worker class. This worker is actually doing NOTHING !")
+        self.logger.critical(
+            "YOU SHOULD OVERWRITE 'process_fetched_data' of the database_worker class. This worker is actually doing NOTHING !")
 
     def long_sleep(self, sleep_in_sec: int, shutdown_check: int = 10) -> bool:
         """
@@ -399,7 +419,8 @@ class Database_Worker:
 # Launcher for this worker. Launch this file to launch a worker
 # NOTE THIS WORKER WON'T PERFORM ANY ACTION !
 if __name__ == '__main__':
-    parser = argparse.ArgumentParser(description='Launch a worker for a specific task : unspecified')
+    parser = argparse.ArgumentParser(
+        description='Launch a worker for a specific task : unspecified')
     parser = arg_parser.add_arg_db_conf(parser)
 
     args = parser.parse_args()

@@ -42,10 +42,14 @@ class Worker_StartStop(object, metaclass=Singleton):
 
         # Specific attributes
         # self.worker_path = get_homedir() / pathlib.Path('carlhauser_server', 'DatabaseAccessor', 'datanase_worker.py')
-        self.adder_worker_path = get_homedir() / pathlib.Path('carlhauser_server', 'DatabaseAccessor', 'database_adder.py')
-        self.requester_worker_path = get_homedir() / pathlib.Path('carlhauser_server', 'DatabaseAccessor', 'database_requester.py')
-        self.feature_worker_path = get_homedir() / pathlib.Path('carlhauser_server', 'FeatureExtractor', 'feature_worker.py')
-        self.flask_worker_path = get_homedir() / pathlib.Path('carlhauser_server', 'API', 'API_server.py')
+        self.adder_worker_path = get_homedir() / pathlib.Path('carlhauser_server',
+                                                              'DatabaseAccessor', 'database_adder.py')
+        self.requester_worker_path = get_homedir() / pathlib.Path('carlhauser_server',
+                                                                  'DatabaseAccessor', 'database_requester.py')
+        self.feature_worker_path = get_homedir() / pathlib.Path('carlhauser_server',
+                                                                'FeatureExtractor', 'feature_worker.py')
+        self.flask_worker_path = get_homedir() / pathlib.Path('carlhauser_server',
+                                                              'API', 'API_server.py')
 
         # Mapping from workertype to worker list
         self.mapping = {
@@ -93,7 +97,8 @@ class Worker_StartStop(object, metaclass=Singleton):
 
         # Parse the worker type
         mode = None  # {"ADD", "REQUEST"}
-        self.logger.debug(f"Worker start/stop is asked to create {worker_type}")
+        self.logger.debug(
+            f"Worker start/stop is asked to create {worker_type}")
 
         if worker_type == WorkerTypes.ADDER:
             worker_path = self.adder_worker_path
@@ -118,11 +123,13 @@ class Worker_StartStop(object, metaclass=Singleton):
             tmp_worker_process = worker_processus.WorkerProcessus(worker_path)
 
             # Launch it, with configurations
-            tmp_worker_process.launch(db_conf, dist_conf, fe_conf, ws_conf, mode)
+            tmp_worker_process.launch(
+                db_conf, dist_conf, fe_conf, ws_conf, mode)
 
             # Monitor the worker if asked to
             if self.db_conf.MONITOR_WORKER:
-                self.logger.info(f"Monitoring is being added on the Worker PID")
+                self.logger.info(
+                    f"Monitoring is being added on the Worker PID")
                 tmp_worker_process.monitor_worker(self.db_conf.MONITOR_RATE)
 
             # Store its reference (as new member of the list of the good type)
@@ -151,7 +158,8 @@ class Worker_StartStop(object, metaclass=Singleton):
 
         # Starting count-down
         start_time = time.time()
-        self.logger.info(f"Checking if webservice worker is online. Start polling ...")
+        self.logger.info(
+            f"Checking if webservice worker is online. Start polling ...")
 
         # While the answer is not ready or we haven't timed-out
         time_out = False
@@ -161,14 +169,17 @@ class Worker_StartStop(object, metaclass=Singleton):
                 pinged = api.ping_server()
             except Exception as e:
                 # Not ready yet, wait a bit
-                self.logger.info(f"Webservice worker not online yet, waiting ...{e}")
+                self.logger.info(
+                    f"Webservice worker not online yet, waiting ...")
                 time.sleep(2)
 
             # Compute if we are already in time out
-            time_out = (abs(time.time() - start_time) > max_wait and max_wait != -1)
+            time_out = (abs(time.time() - start_time)
+                        > max_wait and max_wait != -1)
 
             if time_out:
-                self.logger.info(f"Webservice worker is still not online. Time out ! ...")
+                self.logger.info(
+                    f"Webservice worker is still not online. Time out ! ...")
                 return False
 
         # Ready !
@@ -186,15 +197,19 @@ class Worker_StartStop(object, metaclass=Singleton):
 
         all_have_stopped = True
 
-        self.logger.warning(f"Waiting for workers to stop. Gracetime of {max_wait}s per worker ... ")
+        self.logger.warning(
+            f"Waiting for workers to stop. Gracetime of {max_wait}s per worker ... ")
         for curr_worker_list in list(self.mapping.values()):
 
-            self.logger.debug(f"Waiting {curr_worker_list.list_name} workers ... ")
-            are_stopped = curr_worker_list.wait_until_all_stopped(timeout=max_wait)
+            self.logger.debug(
+                f"Waiting {curr_worker_list.list_name} workers ... ")
+            are_stopped = curr_worker_list.wait_until_all_stopped(
+                timeout=max_wait)
 
             if not are_stopped:
                 # If waiting has timeouted, return
-                self.logger.warning("Some still running, even after max waiting time. Time-out-ed")
+                self.logger.warning(
+                    "Some still running, even after max waiting time. Time-out-ed")
                 all_have_stopped = False
                 break
 

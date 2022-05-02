@@ -16,6 +16,7 @@ from carlhauser_server.Configuration.algo_conf import Algo_conf
 from common.CustomException import AlgoFeatureNotPresentError
 from carlhauser_server.DistanceEngine.distance_hash import Distance_Hash as dist_hash
 
+
 class Distance_ORB:
     def __init__(self, db_conf: database_conf.Default_database_conf, dist_conf: distance_engine_conf.Default_distance_engine_conf, fe_conf: feature_extractor_conf.Default_feature_extractor_conf):
         # STD attributes
@@ -27,7 +28,8 @@ class Distance_ORB:
         self.dist_conf = dist_conf
         self.fe_conf = fe_conf
 
-        self.orb_matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=dist_conf.CROSSCHECK)
+        self.orb_matcher = cv2.BFMatcher(
+            cv2.NORM_HAMMING, crossCheck=dist_conf.CROSSCHECK)
 
     def orb_distance(self, pic_package_from: Dict, pic_package_to: Dict) -> Dict[str, sd.AlgoMatch]:
         """
@@ -38,21 +40,25 @@ class Distance_ORB:
         """
 
         answer = {}
-        self.logger.info("Orb distance computation ... ")
+        self.logger.debug("Orb distance computation ... ")
 
         # Sanity check :
         if pic_package_from.get("ORB_DESCRIPTORS", None) is None or pic_package_to.get("ORB_DESCRIPTORS", None) is None:
-            self.logger.warning(f"ORB descriptors are NOT presents in the results.")
-            raise AlgoFeatureNotPresentError("None ORB descriptors in orb distance.")
+            self.logger.warning(
+                f"ORB descriptors are NOT presents in the results.")
+            raise AlgoFeatureNotPresentError(
+                "None ORB descriptors in orb distance.")
 
         try:
             # Note : @image must be a PIL instance.
             if self.fe_conf.ORB.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.ORB, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.ORB, pic_package_from, pic_package_to, answer)
 
         except Exception as e:
             self.logger.error(traceback.print_tb(e.__traceback__))
-            self.logger.error("Error during orb distance calculation : " + str(e))
+            self.logger.error(
+                "Error during orb distance calculation : " + str(e))
 
         return answer
 
@@ -69,7 +75,8 @@ class Distance_ORB:
 
         algo_name = algo_conf.get('algo_name')
 
-        tmp_dist = self.compute_orb_distance(pic_package_from["ORB_DESCRIPTORS"], pic_package_to["ORB_DESCRIPTORS"])
+        tmp_dist = self.compute_orb_distance(
+            pic_package_from["ORB_DESCRIPTORS"], pic_package_to["ORB_DESCRIPTORS"])
 
         # Add the distance as an AlgoMatch
         answer[algo_name] = sd.AlgoMatch(name=algo_name,

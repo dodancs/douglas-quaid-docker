@@ -31,7 +31,8 @@ class Distance_RANSAC_ORB:
         self.dist_conf = dist_conf
         self.fe_conf = fe_conf
 
-        self.orb_matcher = cv2.BFMatcher(cv2.NORM_HAMMING, crossCheck=dist_conf.CROSSCHECK)
+        self.orb_matcher = cv2.BFMatcher(
+            cv2.NORM_HAMMING, crossCheck=dist_conf.CROSSCHECK)
 
     def ransac_orb_distance(self, pic_package_from: Dict, pic_package_to: Dict) -> Dict[str, sd.AlgoMatch]:
         """
@@ -42,28 +43,34 @@ class Distance_RANSAC_ORB:
         """
 
         answer = {}
-        self.logger.info("RANSAC-Orb distance computation ... ")
+        self.logger.debug("RANSAC-Orb distance computation ... ")
 
         # Verify if what is needed to compute it is present
         if pic_package_from.get("ORB_DESCRIPTORS", None) is None \
                 or pic_package_to.get("ORB_DESCRIPTORS", None) is None:
-            self.logger.warning(f"RANSAC-ORB descriptors are NOT presents in the results.")
-            raise AlgoFeatureNotPresentError("None RANSAC-ORB descriptors in orb distance.")
+            self.logger.warning(
+                f"RANSAC-ORB descriptors are NOT presents in the results.")
+            raise AlgoFeatureNotPresentError(
+                "None RANSAC-ORB descriptors in orb distance.")
 
         # Verify if what is needed to compute it is present
         if pic_package_from.get("ORB_KEYPOINTS", None) is None \
                 or pic_package_to.get("ORB_KEYPOINTS", None) is None:
-            self.logger.warning(f"RANSAC-ORB keypoints are NOT presents in the results.")
-            raise AlgoFeatureNotPresentError("None RANSAC-ORB keypoints in orb distance.")
+            self.logger.warning(
+                f"RANSAC-ORB keypoints are NOT presents in the results.")
+            raise AlgoFeatureNotPresentError(
+                "None RANSAC-ORB keypoints in orb distance.")
 
         # Add result for enabled algorithms
         try:
             if self.fe_conf.RANSAC_ORB.get("is_enabled", False):
-                answer = self.add_results(self.fe_conf.RANSAC_ORB, pic_package_from, pic_package_to, answer)
+                answer = self.add_results(
+                    self.fe_conf.RANSAC_ORB, pic_package_from, pic_package_to, answer)
 
         except Exception as e:
             self.logger.error(traceback.print_tb(e.__traceback__))
-            self.logger.error("Error during RANSAC-orb distance calculation : " + str(e))
+            self.logger.error(
+                "Error during RANSAC-orb distance calculation : " + str(e))
 
         return answer
 
@@ -80,7 +87,8 @@ class Distance_RANSAC_ORB:
 
         algo_name = algo_conf.get('algo_name')
 
-        tmp_dist = self.compute_ransac_distance(pic_package_from, pic_package_to)
+        tmp_dist = self.compute_ransac_distance(
+            pic_package_from, pic_package_to)
 
         # Add the distance as an AlgoMatch
         answer[algo_name] = sd.AlgoMatch(name=algo_name,
@@ -114,11 +122,14 @@ class Distance_RANSAC_ORB:
         self.logger.debug(f"matches : {matches}")
 
         # Filter matches with method chosen
-        reduced_matches = self.filter_matches(matches, self.dist_conf.MATCHES_THRESHOLD_TO_ACCELERATE)
+        reduced_matches = self.filter_matches(
+            matches, self.dist_conf.MATCHES_THRESHOLD_TO_ACCELERATE)
         if len(reduced_matches) > self.dist_conf.MIN_NB_MATCHES_TO_FIND_HOMOGRAPHY:
-            good, transformation_matrix, transformation_rigid_matrix = self.find_homography(keypoints_1, keypoints_2, reduced_matches)
+            good, transformation_matrix, transformation_rigid_matrix = self.find_homography(
+                keypoints_1, keypoints_2, reduced_matches)
         else:
-            self.logger.info(f"RANSAC Computation : Not enough matches between both pictures to continue.")
+            self.logger.info(
+                f"RANSAC Computation : Not enough matches between both pictures to continue.")
             return 1
 
         # Compute distance out of kepts matches
@@ -155,14 +166,18 @@ class Distance_RANSAC_ORB:
         good = []
 
         # Transforming keypoints to list of points
-        src_pts = np.float32([keypoints_pic1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
-        dst_pts = np.float32([keypoints_pic2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
+        src_pts = np.float32(
+            [keypoints_pic1[m.queryIdx].pt for m in matches]).reshape(-1, 1, 2)
+        dst_pts = np.float32(
+            [keypoints_pic2[m.trainIdx].pt for m in matches]).reshape(-1, 1, 2)
 
         # Find the transformation between points
-        transformation_matrix, mask = cv2.findHomography(src_pts, dst_pts, cv2.RANSAC, 5.0)
+        transformation_matrix, mask = cv2.findHomography(
+            src_pts, dst_pts, cv2.RANSAC, 5.0)
 
         # Compute a rigid transformation (without depth, only scale + rotation + translation)
-        transformation_rigid_matrix, rigid_mask = cv2.estimateAffinePartial2D(src_pts, dst_pts)
+        transformation_rigid_matrix, rigid_mask = cv2.estimateAffinePartial2D(
+            src_pts, dst_pts)
 
         # Get a mask list for matches = A list that says "This match is an in/out-lier"
         matchesMask = mask.ravel().tolist()
@@ -203,37 +218,51 @@ class Distance_RANSAC_ORB:
         self.logger.debug(f"Zero determinant distance : {dist_zero}")
         self.logger.debug(f"Orientation distance : {dist_orient} ")
         # TODO : self.logger.debug(f"SVD distance : {dist_svd} ")
-        if dist_zero is not None : list_dist.append(dist_zero)
-        if dist_orient is not None : list_dist.append(dist_orient)
+        if dist_zero is not None:
+            list_dist.append(dist_zero)
+        if dist_orient is not None:
+            list_dist.append(dist_orient)
         # TODO : list_dist.append(dist_svd)
 
         try:
             self.logger.debug(f"-> With Homography transformation...")
-            dist_homo, transformed_pts_homo = self.filter_matrix_corners_homography(pts, max, matrix)
+            dist_homo, transformed_pts_homo = self.filter_matrix_corners_homography(
+                pts, max, matrix)
             if transformed_pts_homo is not None:
-                dist_order_homo = self.filter_corners_direction(transformed_pts_homo)
+                dist_order_homo = self.filter_corners_direction(
+                    transformed_pts_homo)
 
                 self.logger.debug(f"Homography distance : {dist_homo} ")
-                self.logger.debug(f"Order from homography distance : {dist_order_homo} ")
-                if dist_homo is not None : list_dist.append(dist_homo)
-                if dist_order_homo is not None : list_dist.append(dist_order_homo)
+                self.logger.debug(
+                    f"Order from homography distance : {dist_order_homo} ")
+                if dist_homo is not None:
+                    list_dist.append(dist_homo)
+                if dist_order_homo is not None:
+                    list_dist.append(dist_order_homo)
 
         except Exception as e:
-            self.logger.error(f"Inverting RANSAC transformation matrix impossible due to : {e}")
+            self.logger.error(
+                f"Inverting RANSAC transformation matrix impossible due to : {e}")
 
         try:
             self.logger.debug(f"-> With Affine transformation ...")
-            dist_affine, transformed_pts_affine = self.filter_matrix_corners_affine(pts, max, matrix)
+            dist_affine, transformed_pts_affine = self.filter_matrix_corners_affine(
+                pts, max, matrix)
             if transformed_pts_affine is not None:
-                dist_order_affine = self.filter_corners_direction(transformed_pts_affine)
+                dist_order_affine = self.filter_corners_direction(
+                    transformed_pts_affine)
 
                 self.logger.debug(f"Affine distance : {dist_affine} ")
-                self.logger.debug(f"Order from homography distance : {dist_order_affine} ")
-                if dist_affine is not None : list_dist.append(dist_affine)
-                if dist_order_affine is not None : list_dist.append(dist_order_affine)
+                self.logger.debug(
+                    f"Order from homography distance : {dist_order_affine} ")
+                if dist_affine is not None:
+                    list_dist.append(dist_affine)
+                if dist_order_affine is not None:
+                    list_dist.append(dist_order_affine)
 
         except Exception as e:
-            self.logger.error(f"Inverting RANSAC transformation matrix impossible due to : {e}")
+            self.logger.error(
+                f"Inverting RANSAC transformation matrix impossible due to : {e}")
 
         # Mean all values found
         if 1 in list_dist or len(list_dist) == 0:
@@ -264,7 +293,8 @@ class Distance_RANSAC_ORB:
         (like you see the plane object at 90°, which is almost impossible if you use *good matches).
         '''
         threshold = 1
-        if math.fabs(det) > threshold:  # or math.fabs(det) < (1.0 / threshold) :
+        # or math.fabs(det) < (1.0 / threshold) :
+        if math.fabs(det) > threshold:
             return 1  # bad
 
     @staticmethod
@@ -297,7 +327,8 @@ class Distance_RANSAC_ORB:
         h, w, d = 1000, 1000, 3
 
         # Get the position of the 4 corners of the current matching picture
-        pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1], [w - 1, 0]]).reshape(-1, 1, 2)
+        pts = np.float32([[0, 0], [0, h - 1], [w - 1, h - 1],
+                         [w - 1, 0]]).reshape(-1, 1, 2)
         max = 4 * cv2.norm(np.float32([[w, h]]), cv2.NORM_L2)
 
         return pts, max
@@ -314,7 +345,8 @@ class Distance_RANSAC_ORB:
         transformed_pts = cv2.perspectiveTransform(pts, matrix)
 
         # Compute the difference between original and modified position of points
-        dist = round(cv2.norm(pts - transformed_pts, cv2.NORM_L2) / max, 10)  # sqrt((X1-X2)²+(Y1-Y2)²+...)
+        # sqrt((X1-X2)²+(Y1-Y2)²+...)
+        dist = round(cv2.norm(pts - transformed_pts, cv2.NORM_L2) / max, 10)
 
         # Totally an heuristic (geometry based):
         if dist < 0.20:
@@ -336,7 +368,9 @@ class Distance_RANSAC_ORB:
         transformed_pts_affine = cv2.perspectiveTransform(pts, affine_matrix)
 
         # Affine distance
-        tmp_dist_affine = round(cv2.norm(pts - transformed_pts_affine, cv2.NORM_L2) / max, 10)  # sqrt((X1-X2)²+(Y1-Y2)²+...)
+        # sqrt((X1-X2)²+(Y1-Y2)²+...)
+        tmp_dist_affine = round(
+            cv2.norm(pts - transformed_pts_affine, cv2.NORM_L2) / max, 10)
 
         # Totally an heuristic (geometry based):
         if tmp_dist_affine < 0.20:

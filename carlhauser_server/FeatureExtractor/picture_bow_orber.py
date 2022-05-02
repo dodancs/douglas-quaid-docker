@@ -21,15 +21,17 @@ class Picture_BoW_Orber:
 
         self.algo = cv2.ORB_create(nfeatures=fe_conf.ORB_KEYPOINTS_NB)
         # TODO : Dictionnary path / Vocabulary
-        self.bow_descriptor = cv2.BOWImgDescriptorExtractor(self.algo, cv2.BFMatcher(cv2.NORM_HAMMING))
+        self.bow_descriptor = cv2.BOWImgDescriptorExtractor(
+            self.algo, cv2.BFMatcher(cv2.NORM_HAMMING))
         self.vocab_loaded = False
-        try :
-            vocab = BoWOrb_Vocabulary_Creator.load_vocab_from_file(fe_conf.BOW_VOCAB_PATH)
+        try:
+            vocab = BoWOrb_Vocabulary_Creator.load_vocab_from_file(
+                fe_conf.BOW_VOCAB_PATH)
             self.bow_descriptor.setVocabulary(vocab)
             self.vocab_loaded = True
-        except Exception as e :
-            self.logger.error(f"No vocabulary file provided. Not possible to use Bow-ORB : {e}")
-
+        except Exception as e:
+            self.logger.error(
+                f"No vocabulary file provided. Not possible to use Bow-ORB : {e}")
 
     '''
     def create_dict_from_folder(self, folder_path: pathlib.Path()):
@@ -57,7 +59,7 @@ class Picture_BoW_Orber:
         :return: the BoW-orb version of the picture
         """
         answer = {}
-        self.logger.info("BoW-Orbing picture ... ")
+        self.logger.debug("BoW-Orbing picture ... ")
 
         if self.fe_conf.BOW_ORB.get("is_enabled", False) and self.vocab_loaded:
 
@@ -72,7 +74,8 @@ class Picture_BoW_Orber:
             # Get keypoints from orb dictionnary OR compute it if not present
             key_points = orb_dict.get("ORB_KEYPOINTS", None)
             if key_points is None or key_points == []:
-                self.logger.warning(f"No Keypoints in provided ORB dictionnary.")
+                self.logger.warning(
+                    f"No Keypoints in provided ORB dictionnary.")
                 try:
                     self.logger.info(f"Computing Orb Keypoints in BoW-orber.")
 
@@ -83,7 +86,8 @@ class Picture_BoW_Orber:
                         raise Exception("NO KEYPOINTS")
 
                 except Exception as e:
-                    self.logger.error(f"Impossible to compute keypoints in BoW-Orber for provided picture : {e}")
+                    self.logger.error(
+                        f"Impossible to compute keypoints in BoW-Orber for provided picture : {e}")
                     raise e
 
             try:

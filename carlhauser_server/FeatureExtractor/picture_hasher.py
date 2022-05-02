@@ -29,11 +29,12 @@ class Picture_Hasher:
         :return: the hashed version of the picture
         """
         answer = {}
-        self.logger.info("Hashing picture ... ")
+        self.logger.debug("Hashing picture ... ")
 
         # Convert bytes in PIL image
         pil_picture = Image.open(io.BytesIO(curr_picture))
-        self.logger.debug(f"Picture converted to PIL Image {type(pil_picture)}")
+        self.logger.debug(
+            f"Picture converted to PIL Image {type(pil_picture)}")
 
         # DEBUG # pil_picture.save('/home/user/Desktop/debug_pil.bmp')
 
@@ -41,22 +42,28 @@ class Picture_Hasher:
             # Note : @image must be a PIL instance.
             if self.fe_conf.A_HASH.get("is_enabled", False):
                 self.logger.debug("A-HASH ... ")
-                answer["A_HASH"] = self.check_null_hash(imagehash.average_hash(pil_picture))
+                answer["A_HASH"] = self.check_null_hash(
+                    imagehash.average_hash(pil_picture))
             if self.fe_conf.P_HASH.get("is_enabled", False):
                 self.logger.debug("P_HASH ... ")
-                answer["P_HASH"] = self.check_null_hash(imagehash.phash(pil_picture))
+                answer["P_HASH"] = self.check_null_hash(
+                    imagehash.phash(pil_picture))
             if self.fe_conf.P_HASH_SIMPLE.get("is_enabled", False):
                 self.logger.debug("P_HASH_SIMPLE ... ")
-                answer["P_HASH_SIMPLE"] = self.check_null_hash(imagehash.phash_simple(pil_picture))
+                answer["P_HASH_SIMPLE"] = self.check_null_hash(
+                    imagehash.phash_simple(pil_picture))
             if self.fe_conf.D_HASH.get("is_enabled", False):
                 self.logger.debug("D_HASH ... ")
-                answer["D_HASH"] = self.check_null_hash(imagehash.dhash(pil_picture))
+                answer["D_HASH"] = self.check_null_hash(
+                    imagehash.dhash(pil_picture))
             if self.fe_conf.D_HASH_VERTICAL.get("is_enabled", False):
                 self.logger.debug("D_HASH_VERTICAL ... ")
-                answer["D_HASH_VERTICAL"] = self.check_null_hash(imagehash.dhash_vertical(pil_picture))
+                answer["D_HASH_VERTICAL"] = self.check_null_hash(
+                    imagehash.dhash_vertical(pil_picture))
             if self.fe_conf.W_HASH.get("is_enabled", False):
                 self.logger.debug("W_HASH ... ")
-                answer["W_HASH"] = self.check_null_hash(imagehash.whash(pil_picture))
+                answer["W_HASH"] = self.check_null_hash(
+                    imagehash.whash(pil_picture))
             if self.fe_conf.TLSH.get("is_enabled", False):
                 self.logger.debug("TLSH ... ")
                 answer["TLSH"] = self.check_null_hash(tlsh.hash(curr_picture))
