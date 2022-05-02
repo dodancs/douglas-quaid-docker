@@ -95,13 +95,14 @@ class FlaskAppWrapper(object):
                 f"Provided CERT OR KEY file not found :  {self.ws_conf.CERT_FILE} and {self.ws_conf.KEY_FILE}")
             # Replaced with below code to run it using waitress
             # serve(self.app, host=self.ws_conf.ip, port=self.ws_conf.port, ssl_context='adhoc')
-            self.app.run(ssl_context='adhoc', port=self.ws_conf.port)
+            self.app.run(ssl_context='adhoc', host='0.0.0.0',
+                         port=self.ws_conf.port)
         else:
             self.logger.info(
                 f"Provided CERT OR KEY file used : {self.ws_conf.CERT_FILE} and {self.ws_conf.KEY_FILE}")
             # Replaced with below code to run it using waitress
             self.app.run(ssl_context=(str(self.ws_conf.CERT_FILE), str(
-                self.ws_conf.KEY_FILE)), port=self.ws_conf.port)  # ssl_context='adhoc')
+                self.ws_conf.KEY_FILE)), host='0.0.0.0', port=self.ws_conf.port)  # ssl_context='adhoc')
             # serve(self.app, host=self.ws_conf.ip, port=self.ws_conf.port, ssl_context=(str(self.ws_conf.CERT_FILE), str(self.ws_conf.KEY_FILE)))
 
             self.logger.critical(
